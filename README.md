@@ -58,10 +58,11 @@ To run the experiments, you'll need to set up your environment with the necessar
 
 3. Install the required packages:
    ```
-   pip install -r requirements.txt
+   pip install qiskit==0.46.0 -q
+   pip install qiskit-aer==0.13.3 -q
+   pip install pylatexenc==3.0a21 -q
    ```
 
-   Note: The `requirements.txt` file should include all necessary libraries, such as PyTorch, TensorFlow Quantum, and other dependencies.
 
 4. Install Jupyter Notebook or JupyterLab:
    ```
