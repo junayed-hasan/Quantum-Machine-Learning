@@ -1,21 +1,28 @@
-# Quantum-Machine-Learning
-
-This repository contains the code and experiments for the paper "Bridging Classical and Quantum Machine Learning: Knowledge Transfer From Classical to Quantum Neural Networks Using Knowledge Distillation".
+# Bridging Classical and Quantum Machine Learning 
 
 [![arXiv](https://img.shields.io/badge/arXiv-2311.13810-b31b1b.svg)](https://arxiv.org/abs/2311.13810)
 
+This repository contains the code and experiments for the paper "Bridging Classical and Quantum Machine Learning: Knowledge Transfer From Classical to Quantum Neural Networks Using Knowledge Distillation".
+
+---
+
 ## Table of Contents
 
-1. [Motivation](#motivation)
-2. [Project Structure](#project-structure)
-3. [Setup](#setup)
-4. [Experiments](#experiments)
-   - [MNIST](#mnist)
-   - [FashionMNIST](#fashionmnist)
-5. [Results](#results)
-6. [Contributing](#contributing)
-7. [Citation](#citation)
-8. [License](#license)
+1. [Motivation](#motivation)  
+2. [Architecture and Approach](#architecture-and-approach)  
+   - [Knowledge Distillation Method](#knowledge-distillation-method)  
+   - [Dimensionality Techniques](#dimensionality-techniques)  
+3. [Project Structure](#project-structure)  
+4. [Installation and Setup](#installation-and-setup)  
+5. [Usage](#usage)  
+6. [Experiments](#experiments)  
+   - [MNIST](#mnist)  
+   - [FashionMNIST](#fashionmnist)  
+7. [Results](#results)  
+8. [Citation](#citation)  
+9. [License](#license)  
+
+---
 
 ## Motivation
 
@@ -23,84 +30,153 @@ Quantum neural networks have shown promise in surpassing classical neural networ
 
 Our approach adapts classical convolutional neural network (CNN) architectures like LeNet and AlexNet to serve as teacher networks, facilitating the training of student quantum models. This method yields significant performance improvements for quantum models by solely depending on classical CNNs, eliminating the need for cumbersome training of large quantum models in resource-constrained settings.
 
+---
+
+## Architecture and Approach
+
+### Knowledge Distillation Method
+
+In our paper, “Bridging Classical and Quantum Machine Learning: Knowledge Transfer From Classical to Quantum Neural Networks Using Knowledge Distillation,” we show how a **frozen classical CNN** (teacher) transfers knowledge to a **smaller quantum network** (student). Below is a high-level diagram illustrating the overall training scheme:
+
+![Quantum-Classical Knowledge Distillation Architecture](ss1.png)
+
+We compare our **classical-to-quantum** knowledge distillation approach to (1) classical-to-classical and (2) quantum-to-quantum distillation methods:
+
+![Motivation and Different Distillation Strategies](ss2.png)
+
+1. **Teacher Model (Classical, Frozen)**  
+   - Typically a large CNN (e.g., LeNet, AlexNet).  
+2. **Student Model (Quantum, Trainable)**  
+   - A QNN with significantly fewer trainable parameters.  
+3. **Distillation Loss**  
+   - Minimizes KL divergence between teacher’s and student’s output logits.
+
+### Dimensionality Techniques
+
+Because quantum circuits can only handle a limited number of qubits, we must **reduce input dimensionality** before encoding data into a quantum circuit. We experiment with several strategies:
+
+![Dimensionality Reduction for Quantum Processing](ss3.png)
+
+1. **Fully Connected (Flatten + FC):**  
+   - Flatten the image, project to \(2^Q\) features for \(Q\) qubits.  
+2. **Average/Max Pooling:**  
+   - Divide the image into \(2^Q\) regions and pool values.  
+3. **Center Crop:**  
+   - Crop the central \(N \times N\) patch with \(N^2 = 2^Q\).  
+4. **PCA:**  
+   - Use Principal Component Analysis to extract \(2^Q\) components.
+
+Below is an example of the **error rates** for different dimensionality strategies across MNIST, FashionMNIST, and CIFAR10 for 4-qubit and 8-qubit QNNs:
+
+![Error Comparison of Methods](ss4.png)
+
+---
+
+
 ## Project Structure
 
 ```
-.
-├── FashionMNIST Experiments
-│   ├── Baseline students
-│   ├── Distillation on students
-│   └── Teachers
 ├── MNIST Experiments
+│   ├── Teachers                       # Classical CNN teacher notebooks
+│   ├── Baseline students             # Quantum students without distillation
+│   └── Distillation on students      # Quantum students with knowledge distillation
+├── FashionMNIST Experiments
+│   ├── Teachers
 │   ├── Baseline students
-│   ├── Distillation on students
-│   └── Teachers
-└── README.md
+│   └── Distillation on students
+├── ss1.png                            # Architecture diagram
+├── ss2.png                            # Motivation & method comparison diagram
+├── ss3.png                            # Dimensionality reduction methods
+├── ss4.png                            # Error comparison chart
+└── README.md                          # You are here!
 ```
 
-Each subdirectory contains Jupyter notebooks for the respective experiments.
+---
 
-## Setup
+## Installation and Setup
 
-To run the experiments, you'll need to set up your environment with the necessary dependencies. Follow these steps:
+To run the experiments, you need:
 
-1. Clone the repository:
-   ```
-   git clone https://github.com/your-username/quantum-classical-knowledge-distillation.git
-   cd quantum-classical-knowledge-distillation
+- **Python 3.7 or higher**
+- **PyTorch 1.8 or higher**
+- **Qiskit 0.25 or higher**  
+- **TorchQuantum 0.1.0 or higher**
+- **Jupyter Notebook or Jupyter Lab**
+
+### Quick Installation
+
+```bash
+pip install torch            # For PyTorch
+pip install qiskit           # For Qiskit
+pip install torchquantum     # For TorchQuantum
+pip install jupyter          # For notebooks
+```
+
+### Optional: Virtual Environment
+
+It’s recommended to use a virtual environment:
+```bash
+python -m venv venv
+source venv/bin/activate  # or venv\Scripts\activate on Windows
+```
+Then proceed with the installations within your virtual environment.
+
+---
+
+## Usage
+
+1. **Clone the Repository**  
+   ```bash
+   git clone https://github.com/your_username/quantum-machine-learning.git
+   cd quantum-machine-learning
    ```
 
-2. Create a virtual environment (optional but recommended):
+2. **Launch Jupyter**  
+   ```bash
+   jupyter notebook  # or jupyter lab
    ```
-   python -m venv venv
-   source venv/bin/activate  # On Windows, use `venv\Scripts\activate`
-   ```
+3. **Open Notebooks**  
+   - `MNIST Experiments` or `FashionMNIST Experiments` notebooks (for classical teacher training, baseline quantum models, and knowledge-distilled quantum models).
 
-3. Install the required packages:
-   ```
-   pip install qiskit==0.46.0 -q
-   pip install qiskit-aer==0.13.3 -q
-   pip install pylatexenc==3.0a21 -q
-   ```
+If you prefer **Google Colab**, simply upload the notebooks and select the appropriate runtime.
 
-
-4. Install Jupyter Notebook or JupyterLab:
-   ```
-   pip install jupyter
-   ```
+---
 
 ## Experiments
 
 ### MNIST
 
-The MNIST experiments are located in the `MNIST Experiments` directory. To reproduce the results:
-
-1. Navigate to the `MNIST Experiments` directory.
-2. Run the notebooks in the following order:
-   - Teachers: Train the classical CNN models.
-   - Baseline students: Train the quantum models without distillation.
-   - Distillation on students: Apply knowledge distillation from classical to quantum models.
+1. **Teachers**  
+   - Train classical CNNs (LeNet, etc.) on MNIST.  
+2. **Baseline Students**  
+   - Train quantum models without using distillation.  
+3. **Distillation on Students**  
+   - Transfer knowledge from the frozen classical teacher to the quantum student.
 
 ### FashionMNIST
 
-The FashionMNIST experiments follow a similar structure in the `FashionMNIST Experiments` directory. Repeat the steps as described for MNIST.
+Follow the same process as MNIST but with FashionMNIST data:
+1. **Teachers**  
+2. **Baseline Students**  
+3. **Distillation on Students**  
+
+These steps highlight how knowledge distillation improves QNN accuracy across different datasets.
+
+---
 
 ## Results
 
-Our approach yields significant performance improvements for quantum models:
+- **MNIST**: Average quantum model accuracy improves by **0.80%** with distillation.  
+- **FashionMNIST**: Average quantum model accuracy improves by **5.40%** with distillation.  
+- **CIFAR10** (in some ablation studies): Also shows enhancement, although absolute performance is more challenging due to dataset complexity.
 
-- MNIST dataset: Average accuracy improvement of 0.80%
-- FashionMNIST dataset: Average accuracy improvement of 5.40%
+Refer to the **Error Comparison** chart (`ss4.png`) for a visual summary of various dimensionality reduction strategies and 4-qubit/8-qubit experiments.
 
-For detailed results and analysis, please refer to the full paper.
-
-## Contributing
-
-We welcome contributions to this project. Please feel free to submit issues and pull requests.
+---
 
 ## Citation
 
-If you use this code or our results in your research, please cite our paper:
+If you find this repository useful in your research, please consider citing our work:
 
 ```bibtex
 @article{hasan2023bridging,
@@ -111,10 +187,14 @@ If you use this code or our results in your research, please cite our paper:
 }
 ```
 
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
 ---
 
-Copyright © 2023 Mohammad Junayed Hasan. All rights reserved.
+## License
+
+This project is licensed under the **MIT License**. See the [LICENSE](LICENSE) file for details.  
+
+**Happy Quantum Coding!** If you have any questions or suggestions, feel free to open an issue or submit a pull request.
+
+&copy; 2025 [Mohammad Junayed Hasan](https://www.linkedin.com/in/mjhasan21/)  
+
+---
